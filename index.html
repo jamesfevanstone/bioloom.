@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bioloom. — Track bioluminescent blooms worldwide</title>
+<meta name="description" content="Report and discover bioluminescent events around the world. Available on iOS and Android.">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Outfit', -apple-system, sans-serif;
+    background: #040d1a;
+    color: #c8dce8;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background ocean effect */
+  .bg-ocean {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg-wave {
+    position: absolute;
+    width: 200%;
+    height: 2px;
+    left: -50%;
+    opacity: 0.06;
+    background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+    animation: drift 12s ease-in-out infinite;
+  }
+  .bg-wave:nth-child(1) { top: 30%; animation-delay: 0s; animation-duration: 14s; }
+  .bg-wave:nth-child(2) { top: 40%; animation-delay: 2s; animation-duration: 11s; }
+  .bg-wave:nth-child(3) { top: 50%; animation-delay: 4s; animation-duration: 13s; }
+  .bg-wave:nth-child(4) { top: 55%; animation-delay: 1s; animation-duration: 15s; }
+  .bg-wave:nth-child(5) { top: 65%; animation-delay: 3s; animation-duration: 12s; }
+  @keyframes drift {
+    0%, 100% { transform: translateX(-5%); }
+    50% { transform: translateX(5%); }
+  }
+
+  .bg-particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #00e5ff;
+    animation: twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.05; }
+    50% { opacity: 0.3; }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 60px 24px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Logo */
+  .logo-mark {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #071424, #0a1e38);
+    border: 1px solid #162a4a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    box-shadow: 0 0 40px #00e5ff10;
+  }
+  .logo-dot {
+    font-size: 36px;
+    color: #00e5ff;
+    filter: drop-shadow(0 0 8px #00e5ff66);
+  }
+
+  /* Typography */
+  .brand {
+    font-size: 52px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .brand-glow {
+    background: linear-gradient(135deg, #00e5ff, #00ffcc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .brand-dot {
+    background: linear-gradient(135deg, #5a7a94, #5a7a9488);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .tagline {
+    font-size: 20px;
+    font-weight: 300;
+    color: #5a7a94;
+    margin-bottom: 40px;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .description {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #8aa4b8;
+    text-align: center;
+    max-width: 520px;
+    margin-bottom: 44px;
+  }
+
+  /* Download buttons */
+  .download-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 56px;
+  }
+  .download-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.25s;
+    border: 1px solid #162a4a;
+    background: #0a1628;
+  }
+  .download-btn:hover {
+    border-color: #00e5ff44;
+    box-shadow: 0 0 30px #00e5ff08;
+    transform: translateY(-2px);
+  }
+  .download-btn svg { flex-shrink: 0; }
+  .download-text { text-align: left; }
+  .download-small {
+    font-size: 11px;
+    color: #5a7a94;
+    letter-spacing: 0.3px;
+  }
+  .download-big {
+    font-size: 17px;
+    color: #e8f4fc;
+    font-weight: 600;
+  }
+
+  /* Features */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 640px;
+    margin-bottom: 56px;
+  }
+  .feature {
+    background: #0a1628;
+    border: 1px solid #162a4a;
+    border-radius: 12px;
+    padding: 22px;
+    text-align: center;
+    transition: border-color 0.25s;
+  }
+  .feature:hover { border-color: #00e5ff22; }
+  .feature-icon {
+    font-size: 24px;
+    color: #00e5ff;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 4px #00e5ff44);
+  }
+  .feature-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e8f4fc;
+    margin-bottom: 4px;
+  }
+  .feature-desc {
+    font-size: 13px;
+    color: #5a7a94;
+    line-height: 1.5;
+  }
+
+  /* Footer */
+  .footer {
+    padding-top: 32px;
+    border-top: 1px solid #162a4a;
+    text-align: center;
+    width: 100%;
+    max-width: 640px;
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .footer-links a {
+    color: #5a7a94;
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: #00e5ff; }
+  .footer-copy {
+    color: #5a7a9444;
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    .brand { font-size: 40px; }
+    .tagline { font-size: 17px; }
+    .download-row { flex-direction: column; align-items: center; }
+    .download-btn { width: 260px; justify-content: center; }
+    .features { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-ocean">
+  <div class="bg-wave"></div>
+  <div class="bg-wave"></div>
+  <div class="bg-wave"></div>
+  <div class="bg-wave"></div>
+  <div class="bg-wave"></div>
+  <div class="bg-particle" style="top:20%;left:15%;animation-delay:0s"></div>
+  <div class="bg-particle" style="top:35%;left:75%;animation-delay:1.5s"></div>
+  <div class="bg-particle" style="top:60%;left:25%;animation-delay:0.8s"></div>
+  <div class="bg-particle" style="top:45%;left:60%;animation-delay:2.2s"></div>
+  <div class="bg-particle" style="top:70%;left:80%;animation-delay:3s"></div>
+  <div class="bg-particle" style="top:25%;left:45%;animation-delay:1s"></div>
+  <div class="bg-particle" style="top:55%;left:10%;animation-delay:2.5s"></div>
+  <div class="bg-particle" style="top:80%;left:50%;animation-delay:0.3s"></div>
+</div>
+
+<div class="container">
+
+  <div class="logo-mark">
+    <span class="logo-dot">◉</span>
+  </div>
+
+  <h1 class="brand">
+    <span class="brand-glow">bioloom</span><span class="brand-dot">.</span>
+  </h1>
+
+  <p class="tagline">Track bioluminescent blooms worldwide</p>
+
+  <p class="description">
+    A community-driven app for reporting and discovering bioluminescent events.
+    Spotted glowing waves? Log it with your location and photos so others can find it too.
+  </p>
+
+  <!-- Download buttons -->
+  <div class="download-row">
+    <a href="https://apps.apple.com/app/id6764370510" class="download-btn">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="#e8f4fc">
+        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+      </svg>
+      <div class="download-text">
+        <div class="download-small">Download on the</div>
+        <div class="download-big">App Store</div>
+      </div>
+    </a>
+    <a href="YOUR_PLAY_STORE_LINK" class="download-btn">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="#e8f4fc">
+        <path d="M3.18 23.08c-.36-.17-.58-.54-.58-.95V1.87c0-.41.22-.78.58-.95L13.54 12 3.18 23.08zm1.59-22.2L16.35 9.5l-2.74 2.74L4.77.88zM20.16 10.47l-2.94 1.68-3.03-3.03 3.03-3.03 2.94 1.68c.82.47.82 1.23 0 1.7zM4.77 23.12l11.58-8.62-2.74-2.74L4.77 23.12z"/>
+      </svg>
+      <div class="download-text">
+        <div class="download-small">Get it on</div>
+        <div class="download-big">Google Play</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon">◎</div>
+      <div class="feature-title">GPS Reporting</div>
+      <div class="feature-desc">Log sightings with precise location, photos, and descriptions</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">◈</div>
+      <div class="feature-title">Live Map</div>
+      <div class="feature-desc">Explore sightings worldwide on an interactive dark-mode map</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">✦</div>
+      <div class="feature-title">Community</div>
+      <div class="feature-desc">Like and browse reports from fellow glow-hunters</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">◐</div>
+      <div class="feature-title">Learn</div>
+      <div class="feature-desc">Discover the science behind bioluminescence and where to find it</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/support.html">Support</a>
+      <a href="/delete-account.html">Delete Account</a>
+    </div>
+    <p class="footer-copy">© 2026 bioloom.</p>
+  </footer>
+
+</div>
+</body>
+</html>
